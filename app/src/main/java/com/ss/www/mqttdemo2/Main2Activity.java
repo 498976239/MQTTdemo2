@@ -24,6 +24,7 @@ import com.ss.www.mqttdemo2.adapter.MainAdapter;
 import com.ss.www.mqttdemo2.utils.JsonUtil;
 import com.ss.www.mqttdemo2.utils.LogUtil;
 
+import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,7 +46,23 @@ public class Main2Activity extends AppCompatActivity {
     private MainAdapter adapter;
     private Toolbar mToolbar;
     private MQTTService mqttService;
+    private MqttClient client;
     private IntentFilter intentFilter;
+    private ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mqttService = ((MQTTService.CustomBinder)service).getService();
+            client = mqttService.getClient();
+            if (client.isConnected()){
+                setMessage("连接成功");
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+    };
     private BroadcastReceiver receiver = new BroadcastReceiver(){
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -136,6 +153,8 @@ public class Main2Activity extends AppCompatActivity {
             mToolbar.setTitle("土压力盒:"+str_imei);
         }
         registerReceiver(receiver, intentFilter);
+        Intent intent = new Intent(Main2Activity.this,MQTTService.class);
+        bindService(intent,connection,Context.BIND_AUTO_CREATE);
     }
 
     @Override
@@ -143,6 +162,7 @@ public class Main2Activity extends AppCompatActivity {
         super.onDestroy();
         LogUtil.i(TAG,"被销毁了");
         unregisterReceiver(receiver);
+        unbindService(connection);
     }
 
     private void setMessage(String str) {

@@ -7,5 +7,13 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
+    <style name="My_CheckBox" parent="@android:style/Widget.Material.CompoundButton.CheckBox">
+        <item name="android:colorControlActivated">@color/colorGreen2</item>
+        <item name="android:colorControlNormal">@color/colorWhite</item>
+    </style>
+
+    ---------------------
+
+    本文来自 VanEasley 的CSDN 博客 ，全文地址请点击：https://blog.csdn.net/vaneasley/article/details/64127792?utm_source=copy
 
 </resources>

@@ -21,6 +21,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="电压"
+                android:textColor="@color/colorWhite"
                 android:textSize="15sp" />
 
 
@@ -29,6 +30,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:textColor="@color/colorWhite"
                 android:text="通道"
                 android:textSize="15sp" />
 
@@ -38,6 +40,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="数据1"
+                android:textColor="@color/colorWhite"
                 android:textSize="15sp" />
 
             <TextView
@@ -46,10 +49,12 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="数据2"
+                android:textColor="@color/colorWhite"
                 android:textSize="15sp" />
             <TextView
                 android:id="@+id/data3"
                 android:layout_width="40dp"
+                android:textColor="@color/colorWhite"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="数据3"
@@ -63,6 +68,7 @@
         <TextView
             android:id="@+id/time"
             android:text="时间"
+            android:textColor="@color/colorWhite"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="5dp"

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -18,8 +19,10 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ss.www.mqttdemo2.Bean.HeadInfo;
 import com.ss.www.mqttdemo2.Bean.MyMessage;
 import com.ss.www.mqttdemo2.adapter.ImeiAdpter;
 import com.ss.www.mqttdemo2.adapter.MainAdapter;
@@ -45,14 +48,16 @@ public class MainActivity extends AppCompatActivity {
     private MQTTService mqttService;
     private MqttClient client;
     private Toolbar mToolbar;
+    private int count;
     private List<MyMessage> back_list;
     private SearchView mSearchView;
     private RecyclerView imei_rv;
     private ImeiAdpter imei_adapter;
     private List<MyMessage> mList_show;
     private List<MyMessage> mList;
-    private List<String> mList_imei;
-    private List<String> filter_string;
+    private List<String> compare;//用来查看里面是否有重复的IMEI
+    private List<HeadInfo> mList_imei;
+    private List<HeadInfo> filter_string;
     public  String userName2 ;
     public  String passWord2 ;
     private ServiceConnection connection = new ServiceConnection() {
@@ -123,16 +128,30 @@ public class MainActivity extends AppCompatActivity {
         initData();//初始化数据
         initView();//初始化UI
         registerBroadcast();//注册广播
+        mSearchView.setQueryHint("请输入关键字");
+        mSearchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+            }
+        });
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                filter_string = Filter(mList_imei,newText);
-                imei_adapter.setFilter(filter_string);
+
+                    filter_string = Filter(mList_imei,newText);
+
+                    imei_adapter.setFilter(filter_string);
+                    LogUtil.i(TAG,"-filter_string.size()--"+filter_string.size());
+                if (filter_string.size() == 0){
+                    imei_adapter.setFilter(mList_imei);
+                }
+
                 return true;
             }
         });
@@ -144,6 +163,10 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, MQTTService.class);
         bindService(intent, connection, Context.BIND_AUTO_CREATE);
         registerReceiver(receiver, intentFilter);
+        if (mList_imei != null){
+            //imei_adapter.setFilter(mList_imei);
+            imei_adapter.notifyDataSetChanged();
+        }
 
     }
 
@@ -167,14 +190,15 @@ public class MainActivity extends AppCompatActivity {
         intentFilter.addAction(MQTTService.CONNECT_LOST);
     }
 
-    private List<String> Filter(List<String> list, String str){
+    private List<HeadInfo> Filter(List<HeadInfo> list, String str){
         if (filter_string != null){
             filter_string.clear();
         }
-        for (String str1 : list){
-            if (str1.contains(str)){
-                filter_string.add(str1);
+        for (HeadInfo headInfo : list){
+            if ((headInfo.getName()).contains(str)) {
+                    filter_string.add(headInfo);
             }
+
         }
         return filter_string;
     }
@@ -192,7 +216,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(View view, int position) {
                 if (filter_string.size() > 0){
-                    String str2 = filter_string.get(position);
+                    String str2 = filter_string.get(position).getName();
+                    filter_string.get(position).setMark(true);
                     Intent intent = new Intent(MainActivity.this,Main2Activity.class);
                     Bundle bundle = new Bundle();
                     bundle.putString(Main2Activity.IMEI_NO,str2);
@@ -200,7 +225,8 @@ public class MainActivity extends AppCompatActivity {
                     intent.putExtras(bundle);
                     startActivity(intent);
                 }else {
-                    String str = mList_imei.get(position);
+                    String str = mList_imei.get(position).getName();
+                    mList_imei.get(position).setMark(true);
                     Intent intent = new Intent(MainActivity.this,Main2Activity.class);
                     Bundle bundle = new Bundle();
                     bundle.putString(Main2Activity.IMEI_NO,str);
@@ -221,6 +247,7 @@ public class MainActivity extends AppCompatActivity {
         mList_imei = new ArrayList<>();
         mList_show = new ArrayList<>();
         filter_string = new ArrayList<>();
+        compare = new ArrayList<>();
     }
 
     private void setMessage(String str) {
@@ -244,8 +271,13 @@ public class MainActivity extends AppCompatActivity {
         try {
             MyMessage message = JsonUtil.dealWithJson(s);
             mList.add(message);
-            if (!mList_imei.contains(message.getIMEI())){
-                mList_imei.add(message.getIMEI());
+            if (!compare.contains(message.getIMEI())){
+                count++;
+                HeadInfo headInfo = new HeadInfo();
+                headInfo.setName(message.getIMEI());
+                headInfo.setCount(count+"");
+                compare.add(message.getIMEI());
+                mList_imei.add(headInfo);
             }
             imei_adapter.notifyDataSetChanged();
 
