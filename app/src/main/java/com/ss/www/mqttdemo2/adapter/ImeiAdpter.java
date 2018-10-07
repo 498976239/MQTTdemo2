@@ -24,6 +24,7 @@ public class ImeiAdpter extends RecyclerView.Adapter {
     private static final int VIEW_TYPE = -1;
     private Context mContext;
     private List<HeadInfo> mList;
+    private boolean change;//用来改变空界面的显示
 
     public ImeiAdpter(Context mContext, List<HeadInfo> mList) {
         this.mContext = mContext;
@@ -52,9 +53,23 @@ public class ImeiAdpter extends RecyclerView.Adapter {
                             holder1.tv.setTextColor(Color.WHITE);//让字体变回白色
                             holder1.count.setTextColor(Color.WHITE);
                             mList.get(position).setMark(false);//让信息没有被标记
+                            mList.get(position).setLast(false);
                             holder1.checkBox.setClickable(false);//让选择框不能被点击
                         }
                     });
+                holder1.checkBox2.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        holder1.tv.setTextColor(Color.WHITE);//让字体变回白色
+                        holder1.count.setTextColor(Color.WHITE);
+                        mList.get(position).setMark(false);//让信息没有被标记
+                        mList.get(position).setLast(false);
+                        holder1.checkBox.setClickable(false);//让选择框不能被点击
+                        holder1.checkBox.setChecked(false);
+                        holder1.checkBox.setVisibility(View.VISIBLE);
+                        holder1.checkBox2.setVisibility(View.GONE);
+                    }
+                });
 
                     if (mList.get(position).isMark()){//如果信息被标记
                         holder1.checkBox.setChecked(true);//选择框勾选
@@ -67,6 +82,20 @@ public class ImeiAdpter extends RecyclerView.Adapter {
                         holder1.count.setTextColor(Color.WHITE);
                         holder1.checkBox.setClickable(false);
                     }
+                    if (mList.get(position).isMark()&&mList.get(position).isLast()){
+                        //当是最新点击的对象checkBox2要显现并且勾选，checkBox1消失
+                        holder1.checkBox2.setChecked(true);//选择框勾选
+                        holder1.tv.setTextColor(Color.RED);//字体变绿
+                        holder1.checkBox2.setVisibility(View.VISIBLE);
+                        holder1.checkBox.setVisibility(View.INVISIBLE);
+                        holder1.count.setTextColor(Color.RED);//字体变绿
+                        //holder1.checkBox.setClickable(true);//选择框可以被点击
+                    }
+                    if (!mList.get(position).isLast()){//当不是最新的点击对象时，让checkBox2消失，checkBox显示
+                        holder1.checkBox2.setVisibility(View.GONE);
+                        holder1.checkBox.setVisibility(View.VISIBLE);
+                    }
+
 
                 if (onItemClickListener != null){
                     holder1.itemView.setOnClickListener(new View.OnClickListener() {
@@ -76,6 +105,12 @@ public class ImeiAdpter extends RecyclerView.Adapter {
 
                         }
                     });
+                }
+            }
+            if (holder instanceof EmptyViewHoldr){
+                EmptyViewHoldr viewHoldr = (EmptyViewHoldr) holder;
+                if (change){
+                    viewHoldr.empty.setVisibility(View.GONE);
                 }
             }
     }
@@ -102,11 +137,13 @@ public class ImeiAdpter extends RecyclerView.Adapter {
      class ImeiViewHolder extends RecyclerView.ViewHolder{
         TextView tv;
          CheckBox checkBox;
+         CheckBox checkBox2;
          TextView count;
         public ImeiViewHolder(View itemView) {
             super(itemView);
             tv = itemView.findViewById(R.id.imei_info);
             checkBox = itemView.findViewById(R.id.mark);
+            checkBox2 = itemView.findViewById(R.id.mark2);
             count = itemView.findViewById(R.id.count);
         }
     }
@@ -119,6 +156,7 @@ public class ImeiAdpter extends RecyclerView.Adapter {
     }
     public void setFilter(List<HeadInfo> list){
         mList = list;
+        change = true;
         notifyDataSetChanged();
     }
 }

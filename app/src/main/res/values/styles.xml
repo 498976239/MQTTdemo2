@@ -11,6 +11,10 @@
         <item name="android:colorControlActivated">@color/colorGreen2</item>
         <item name="android:colorControlNormal">@color/colorWhite</item>
     </style>
+    <style name="My_CheckBox2" parent="@android:style/Widget.Material.CompoundButton.CheckBox">
+        <item name="android:colorControlActivated">@color/colorRed</item>
+        <item name="android:colorControlNormal">@color/colorWhite</item>
+    </style>
 
     ---------------------
 

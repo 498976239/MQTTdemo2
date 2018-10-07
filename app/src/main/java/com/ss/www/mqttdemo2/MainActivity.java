@@ -1,5 +1,6 @@
 package com.ss.www.mqttdemo2;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private final static int RECEIVE_DATA = 1;
     public  final static String ACCOUNT = "com.ss.www.mqttdemo.ACCOUNT";
     public  final static String PASSWORD = "com.ss.www.mqttdemo.PASSWORD";
+    public  final static int COME_BACK = 3;
     private MQTTService mqttService;
     private MqttClient client;
     private Toolbar mToolbar;
@@ -149,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
                     imei_adapter.setFilter(filter_string);
                     LogUtil.i(TAG,"-filter_string.size()--"+filter_string.size());
                 if (filter_string.size() == 0){
-                    imei_adapter.setFilter(mList_imei);
+                    //imei_adapter.setFilter(mList_imei);
                 }
 
                 return true;
@@ -167,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
             //imei_adapter.setFilter(mList_imei);
             imei_adapter.notifyDataSetChanged();
         }
+        LogUtil.i(TAG,"filter_string.size()------------------------"+filter_string.size()+"");
 
     }
 
@@ -196,7 +199,10 @@ public class MainActivity extends AppCompatActivity {
         }
         for (HeadInfo headInfo : list){
             if ((headInfo.getName()).contains(str)) {
+                if (!filter_string.contains(headInfo)){
                     filter_string.add(headInfo);
+                }
+
             }
 
         }
@@ -218,22 +224,26 @@ public class MainActivity extends AppCompatActivity {
                 if (filter_string.size() > 0){
                     String str2 = filter_string.get(position).getName();
                     filter_string.get(position).setMark(true);
+                    filter_string.get(position).setLast(true);
                     Intent intent = new Intent(MainActivity.this,Main2Activity.class);
                     Bundle bundle = new Bundle();
                     bundle.putString(Main2Activity.IMEI_NO,str2);
                     bundle.putSerializable(Main2Activity.INFORMATION, (Serializable) mList);
                     intent.putExtras(bundle);
-                    startActivity(intent);
+                   // startActivity(intent);
+                    startActivityForResult(intent,COME_BACK);
                 }else {
                     String str = mList_imei.get(position).getName();
                     mList_imei.get(position).setMark(true);
+                    mList_imei.get(position).setLast(true);
                     Intent intent = new Intent(MainActivity.this,Main2Activity.class);
                     Bundle bundle = new Bundle();
                     bundle.putString(Main2Activity.IMEI_NO,str);
                     LogUtil.i(TAG,"得到的mList总数："+mList.size());
                     bundle.putSerializable(Main2Activity.INFORMATION, (Serializable) mList);
                     intent.putExtras(bundle);
-                    startActivity(intent);
+                    startActivityForResult(intent,COME_BACK);
+                    //startActivity(intent);
                 }
 
             }
@@ -278,6 +288,13 @@ public class MainActivity extends AppCompatActivity {
                 headInfo.setCount(count+"");
                 compare.add(message.getIMEI());
                 mList_imei.add(headInfo);
+                if (filter_string.size()!= 0){//加入这一条是为了，在最初的时候没有得到IMEI号，过了
+                    //一段时间后才来的，这时候adapter关联的数据时filter_string
+                    if (!filter_string.contains(headInfo)){//filter_string没有改对象才添加进去
+                        filter_string.add(headInfo);
+                    }
+
+                }
             }
             imei_adapter.notifyDataSetChanged();
 
@@ -286,4 +303,35 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        LogUtil.i(TAG,"requestCode----"+requestCode);
+        LogUtil.i(TAG,"resultCode----"+resultCode);
+        LogUtil.i(TAG,"运行到返回-1---");
+        switch (requestCode){
+            case COME_BACK:
+                LogUtil.i(TAG,"运行到返回--2--");
+                if (resultCode == Activity.RESULT_OK){
+                    LogUtil.i(TAG,"运行到返回--3--");
+                    String str = data.getStringExtra(Main2Activity.BACK_IMEI);
+                    for (int i = 0; i < mList_imei.size(); i++) {
+                        if (mList_imei.get(i).getName().equals(str)){
+                            mList_imei.get(i).setLast(true);
+                        }else {
+                            mList_imei.get(i).setLast(false);
+                        }
+                    }
+                    for (int i = 0; i < filter_string.size(); i++) {
+                        if (filter_string.get(i).getName().equals(str)){
+                            filter_string.get(i).setLast(true);
+                        }else {
+                            filter_string.get(i).setLast(false);
+                        }
+                    }
+                    imei_adapter.notifyDataSetChanged();
+                }
+                break;
+        }
+    }
 }

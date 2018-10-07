@@ -34,8 +34,10 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mService = ((MQTTService.CustomBinder)service).getService();
-            mService.init(account,password);
-            mService.connect();
+                mService.init(account,password);
+                mService.connect();
+
+
         }
 
         @Override
@@ -92,12 +94,19 @@ public class LoginActivity extends AppCompatActivity {
         mButton_login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                  account = mLogin.getText().toString();
-                  password = mPassword.getText().toString();
-                LogUtil.i(TAG,"account--"+account);
-                LogUtil.i(TAG,"password--"+password);
-                Intent intent = new Intent(LoginActivity.this,MQTTService.class);
-                bindService(intent,connection, Context.BIND_AUTO_CREATE);
+                 account = mLogin.getText().toString();
+                 password = mPassword.getText().toString();
+                LogUtil.i(TAG,"account--"+account.length());
+                LogUtil.i(TAG,"password--"+password.length());
+                if ((account.length() != 0)&&(password.length()!=0)){
+                    LogUtil.i(TAG,"在按钮里");
+                    Intent intent = new Intent(LoginActivity.this,MQTTService.class);
+                    bindService(intent,connection, Context.BIND_AUTO_CREATE);
+                }else {
+                    Toast.makeText(LoginActivity.this,"登录名或密码不能为空",Toast.LENGTH_SHORT).show();
+
+                }
+
             }
         });
         registerBroadcast();

@@ -43,21 +43,96 @@ public class MainAdapter extends RecyclerView.Adapter {
             MainViewHolder viewHolder = (MainViewHolder) holder;
             viewHolder.t2.setText(mList.get(position).getVoltage());
             viewHolder.t4.setText(mList.get(position).getChannelNO());
-            if (mList.get(position).getD1().length()>6){
-                viewHolder.t5.setText((mList.get(position).getD1()).substring(0,6));
-            }else {
-                viewHolder.t5.setText((mList.get(position).getD1()));
+            switch (mList.get(position).getSensorType()){
+                case "1":
+                    //数据1
+                    if (mList.get(position).getD1().length() <=  3){//等于0.0的情况
+                        viewHolder.t5.setText((mList.get(position).getD1()));
+                    }else {
+                        String str = mList.get(position).getD1()+"000000";
+                        float f = Float.parseFloat(str);
+                        String s = String.format("%.2f", f);
+                        viewHolder.t5.setText(s);
+                    }
+                    //数据2
+                    if (mList.get(position).getD2().length() <= 3){
+                        viewHolder.t6.setText((mList.get(position).getD2()));
+                    }else {
+                        String str = mList.get(position).getD2()+"000000";
+                        float f = Float.parseFloat(str);
+                        String s = String.format("%.2f", f);
+                        viewHolder.t6.setText(s);
+                    }
+                    //数据3
+                    if (mList.get(position).getD3().length() <= 3){
+                        viewHolder.t7.setText((mList.get(position).getD3()));
+                    }else {
+                        String str = mList.get(position).getD3()+"000000";
+                        float f = Float.parseFloat(str);
+                        String s = String.format("%.2f", f);
+                        viewHolder.t7.setText(s);
+                    }
+                    break;
+                case "2":
+                    //数据1
+                    if (mList.get(position).getD1().length() <=  3){//等于0.0的情况
+                        viewHolder.t5.setText((mList.get(position).getD1()));
+                    }else {
+                        String str = mList.get(position).getD1()+"000000";
+                        float f = Float.parseFloat(str);
+                        String s = String.format("%.4f", f);
+                        viewHolder.t5.setText(s);
+                    }
+                    //数据2
+                    if (mList.get(position).getD2().length() <= 3){
+                        viewHolder.t6.setText((mList.get(position).getD2()));
+                    }else {
+                        String str = mList.get(position).getD2()+"000000";
+                        float f = Float.parseFloat(str);
+                        String s = String.format("%.4f", f);
+                        viewHolder.t6.setText(s);
+                    }
+                    //数据3
+                    if (mList.get(position).getD3().length() <= 3){
+                        viewHolder.t7.setText((mList.get(position).getD3()));
+                    }else {
+                        String str = mList.get(position).getD3()+"000000";
+                        float f = Float.parseFloat(str);
+                        String s = String.format("%.4f", f);
+                        viewHolder.t7.setText(s);
+                    }
+                    break;
+                case "3":
+                    //数据1
+                    if (mList.get(position).getD1().length() <=  3){//等于0.0的情况
+                        viewHolder.t5.setText((mList.get(position).getD1()));
+                    }else {
+                        String str = mList.get(position).getD1()+"000000";
+                        float f = Float.parseFloat(str);
+                        String s = String.format("%.4f", f);
+                        viewHolder.t5.setText(s);
+                    }
+                    //数据2
+                    if (mList.get(position).getD2().length() <= 3){
+                        viewHolder.t6.setText((mList.get(position).getD2()));
+                    }else {
+                        String str = mList.get(position).getD2()+"000000";
+                        float f = Float.parseFloat(str);
+                        String s = String.format("%.4f", f);
+                        viewHolder.t6.setText(s);
+                    }
+                    //数据3
+                    if (mList.get(position).getD3().length() <= 3){
+                        viewHolder.t7.setText((mList.get(position).getD3()));
+                    }else {
+                        String str = mList.get(position).getD3()+"000000";
+                        float f = Float.parseFloat(str);
+                        String s = String.format("%.4f", f);
+                        viewHolder.t7.setText(s);
+                    }
+                    break;
             }
-            if (mList.get(position).getD2().length()>6){
-                viewHolder.t6.setText((mList.get(position).getD2()).substring(0,6));
-            }else {
-                viewHolder.t6.setText((mList.get(position).getD2()));
-            }
-            if (mList.get(position).getD3().length()>6){
-                viewHolder.t7.setText((mList.get(position).getD3()).substring(0,6));
-            }else {
-                viewHolder.t7.setText((mList.get(position).getD3()));
-            }
+
 
             viewHolder.t8.setText(mList.get(position).getMeasureTime());
         }

@@ -27,12 +27,23 @@
                 android:textColor="@color/colorWhite"
                 android:text="可查询的传感器"
                 android:layout_margin="5dp"/>
-        <CheckBox
-            android:id="@+id/mark"
+        <RelativeLayout
             android:layout_weight="1"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:theme="@style/My_CheckBox"/>
+            android:layout_height="wrap_content">
+            <CheckBox
+                android:id="@+id/mark"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:theme="@style/My_CheckBox"/>
+            <CheckBox
+                android:id="@+id/mark2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:theme="@style/My_CheckBox2"/>
+        </RelativeLayout>
+
 
     </LinearLayout>
 

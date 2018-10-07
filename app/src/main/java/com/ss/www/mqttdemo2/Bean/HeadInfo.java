@@ -8,6 +8,15 @@ public class HeadInfo {
     private String name;
     private boolean mark;
     private String count;
+    private boolean last;
+
+    public boolean isLast() {
+        return last;
+    }
+
+    public void setLast(boolean last) {
+        this.last = last;
+    }
 
     public String getCount() {
         return count;

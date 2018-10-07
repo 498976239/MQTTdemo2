@@ -39,6 +39,7 @@ public class Main2Activity extends AppCompatActivity {
     private final static int RECEIVE_DATA2 = 1;
     public static final String IMEI_NO = "imei_no";
     public static final String INFORMATION = "information";
+    public static final String BACK_IMEI = "BACK_IMEI";//送回去的IMEI号，用来标红颜色
     private List<MyMessage> mList;
     private List<MyMessage>show_mlist;
     private String str_imei;
@@ -181,4 +182,13 @@ public class Main2Activity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent();
+        intent.putExtra(BACK_IMEI,str_imei);
+        setResult(Activity.RESULT_OK,intent);
+        super.onBackPressed();
+
+        //Main2Activity.this.finish();
+    }
 }

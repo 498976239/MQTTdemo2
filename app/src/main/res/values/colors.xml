@@ -7,4 +7,5 @@
     <color name="colorWhite">#FFFFFFFF</color>
     <color name="colorGrey">#FFAFAEAE</color>
     <color name="colorGrey2">#4b4a4a</color>
+    <color name="colorRed">#FFFF0000</color>
 </resources>
