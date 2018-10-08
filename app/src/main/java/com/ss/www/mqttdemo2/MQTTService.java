@@ -1,12 +1,17 @@
 package com.ss.www.mqttdemo2;
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Binder;
 import android.os.IBinder;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.ss.www.mqttdemo2.utils.LogUtil;
 import com.ss.www.mqttdemo2.utils.MacSignature;
@@ -40,6 +45,7 @@ public class MQTTService extends Service implements MqttCallback{
     public final static String MESSAGE = "com.ss.www.mqttdemo2.service.MESSAGE";
     public final static String WRONG_INFOR = "com.ss.www.mqttdemo2.service.WRONG_INFOR";
     public final static String NO_WIFI = "com.ss.www.mqttdemo2.service.no_wifi";
+    public final static String NO_PERMISSION = "com.ss.www.mqttdemo2.service.NO_PERMISSION";
     private MqttClient client;//client
     private MqttConnectOptions options;//配置
     private  String TelephonyIMEI;
@@ -104,6 +110,7 @@ public class MQTTService extends Service implements MqttCallback{
         super.onDestroy();
         //mTimer.cancel();
         try {
+            if (client!=null)
             client.unsubscribe(myTopic +userName);
         } catch (MqttException e) {
             e.printStackTrace();
@@ -161,41 +168,50 @@ public class MQTTService extends Service implements MqttCallback{
 
     public void init(String userName,String passWord) {
         this.userName = userName;
-        TelephonyManager mTm = (TelephonyManager)this.getSystemService(TELEPHONY_SERVICE);
-        TelephonyIMEI = mTm.getDeviceId();
-        int currentapiVersion=android.os.Build.VERSION.SDK_INT;
-        clientId = userName +  "@Android@" + currentapiVersion+"@"+  TelephonyIMEI;
-        LogUtil.i(TAG,"clientId----"+clientId);
-        LogUtil.i(TAG,"userName----"+userName);
-        LogUtil.i(TAG,"c----"+clientId.split("@")[0]);
-        try {
-            sign =  MacSignature.macSignature(clientId.split("@")[0], passWord);
-            Log.i(TAG,"sign----"+sign);
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
+                != PackageManager.PERMISSION_GRANTED) {
+                broadcastUpdate(NO_PERMISSION);
+            LogUtil.i(TAG,"没有获取读取手机状态权限");
+        }else{
+            // 有权限
+            LogUtil.i(TAG,"获取读取手机状态权限");
+            TelephonyManager mTm = (TelephonyManager)this.getSystemService(TELEPHONY_SERVICE);
+            TelephonyIMEI = mTm.getDeviceId();
+            int currentapiVersion=android.os.Build.VERSION.SDK_INT;
+            clientId = userName +  "@Android@" + currentapiVersion+"@"+  TelephonyIMEI;
+            LogUtil.i(TAG,"clientId----"+clientId);
+            LogUtil.i(TAG,"userName----"+userName);
+            LogUtil.i(TAG,"c----"+clientId.split("@")[0]);
+            try {
+                sign =  MacSignature.macSignature(clientId.split("@")[0], passWord);
+                Log.i(TAG,"sign----"+sign);
+            } catch (InvalidKeyException e) {
+                e.printStackTrace();
+                LogUtil.i(TAG,"---InvalidKeyException----"+e.toString());
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+                LogUtil.i(TAG,"---NoSuchAlgorithmException----"+e.toString());
+            }
+            try {
+                client = new MqttClient(host,clientId,new MemoryPersistence());
+            } catch (MqttException e) {
+                e.printStackTrace();
+                LogUtil.i(TAG,"new client---"+e.toString());
+            }
+            options = new MqttConnectOptions();//MQTT的连接设置
+
+            options.setCleanSession(true);//设置是否清空session,这里如果设置为false表示服务器会保留客户端的连接记录，这里设置为true表示每次连接到服务器都以新的身份连接
+
+            options.setUserName(userName);//设置连接的用户名(自己的服务器没有设置用户名)
+
+            options.setPassword(sign.toCharArray());//设置连接的密码(自己的服务器没有设置密码)
+
+            options.setConnectionTimeout(10);// 设置连接超时时间 单位为秒
+
+            options.setKeepAliveInterval(20);// 设置会话心跳时间 单位为秒 服务器会每隔1.5*20秒的时间向客户端发送个消息判断客户端是否在线，但这个方法并没有重连的机制
+
+            client.setCallback(this);// 设置MQTT监听并且接受消息
         }
-        try {
-            client = new MqttClient(host,clientId,new MemoryPersistence());
-        } catch (MqttException e) {
-            e.printStackTrace();
-            LogUtil.i(TAG,"new client---"+e.toString());
-        }
-
-        options = new MqttConnectOptions();//MQTT的连接设置
-
-        options.setCleanSession(true);//设置是否清空session,这里如果设置为false表示服务器会保留客户端的连接记录，这里设置为true表示每次连接到服务器都以新的身份连接
-
-        options.setUserName(userName);//设置连接的用户名(自己的服务器没有设置用户名)
-
-        options.setPassword(sign.toCharArray());//设置连接的密码(自己的服务器没有设置密码)
-
-        options.setConnectionTimeout(10);// 设置连接超时时间 单位为秒
-
-        options.setKeepAliveInterval(20);// 设置会话心跳时间 单位为秒 服务器会每隔1.5*20秒的时间向客户端发送个消息判断客户端是否在线，但这个方法并没有重连的机制
-
-        client.setCallback(this);// 设置MQTT监听并且接受消息
 
     }
 

@@ -1,5 +1,6 @@
 package com.ss.www.mqttdemo2;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -9,6 +10,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -75,6 +77,11 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.makeText(LoginActivity.this,"无信号，请检查网络",Toast.LENGTH_SHORT).show();
                 unbindService(connection);
             }
+            if (MQTTService.NO_PERMISSION.equals(str)){
+                Toast.makeText(LoginActivity.this,"请允许读取手机状态权限",Toast.LENGTH_SHORT).show();
+                //ActivityCompat.requestPermissions(LoginActivity.this, new String[]{Manifest.permission.READ_PHONE_STATE}, 3);
+                unbindService(connection);
+            }
         }
     };
 
@@ -133,12 +140,18 @@ public class LoginActivity extends AppCompatActivity {
         //intentFilter.addAction(MQTTService.GET_MESSAGE);
         intentFilter.addAction(MQTTService.NO_WIFI);
         intentFilter.addAction(MQTTService.WRONG_INFOR);
+        intentFilter.addAction(MQTTService.NO_PERMISSION);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(receiver);
-        unbindService(connection);
+        if (receiver!=null){
+            unregisterReceiver(receiver);
+        }
+       if (mService!=null){
+           unbindService(connection);
+       }
+
     }
 }
