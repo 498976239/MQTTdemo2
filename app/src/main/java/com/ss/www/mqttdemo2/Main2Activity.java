@@ -172,8 +172,11 @@ public class Main2Activity extends AppCompatActivity {
     private void getInformation(String s){
         try {
             MyMessage message = JsonUtil.dealWithJson(s);
-            mList.add(message);
+            if (!mList.contains(message)){
+                mList.add(message);
+            }
             if (message.getIMEI().equals(str_imei)){
+                if (!show_mlist.contains(message))
                 show_mlist.add(0,message);
             }
             adapter.notifyDataSetChanged();

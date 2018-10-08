@@ -280,7 +280,9 @@ public class MainActivity extends AppCompatActivity {
     private void getInformation(String s){
         try {
             MyMessage message = JsonUtil.dealWithJson(s);
-            mList.add(message);
+            if (!mList.contains(message)){
+                mList.add(message);
+            }
             if (!compare.contains(message.getIMEI())){
                 count++;
                 HeadInfo headInfo = new HeadInfo();
