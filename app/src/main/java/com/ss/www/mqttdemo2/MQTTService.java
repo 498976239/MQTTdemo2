@@ -6,6 +6,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -50,10 +51,11 @@ public class MQTTService extends Service implements MqttCallback{
     private MqttConnectOptions options;//配置
     private  String TelephonyIMEI;
     private String sign;
+    private int reconnect;//重连次数计时
     private String host = "tcp://120.77.246.251:1883";
     private String Local = "tcp://mq.tongxinmao.com:18831";//通讯猫测试
     private String userName ;
-    private static String myTopic = "iot/nb/";      //要订阅的主题
+    private static String myTopic = "iot/nb/"; //要订阅的主题
     private static String Topic = "ss";//通讯猫测试
     private String clientId ;//客户端标识
     private Timer mTimer;
@@ -226,23 +228,36 @@ public class MQTTService extends Service implements MqttCallback{
         LogUtil.i(TAG,"connectionLost"+cause.toString());
         String str = CONNECT_LOST;
         broadcastUpdate(str);
-        if (threadPool == null || threadPool.isShutdown()){
-            threadPool = Executors.newFixedThreadPool(threadSize);
-        }
-        threadPool.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    client.connect(options);//连接服务器,连接不上会阻塞在这
-                    //LogUtil.i(TAG,"连接成功");
-                    String intentAction = CONNECTED;
-                    broadcastUpdate(intentAction);
-                    subscribe();
-                } catch (MqttException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+       if (reconnect < 3){
+           reconnect++;
+           new Handler().postDelayed(new Runnable() {
+               @Override
+               public void run() {
+                   if (threadPool == null || threadPool.isShutdown()){
+                       threadPool = Executors.newFixedThreadPool(threadSize);
+                   }
+                   threadPool.submit(new Runnable() {
+                       @Override
+                       public void run() {
+                           try {
+                               LogUtil.i(TAG,"---来异常里连接");
+                               client.connect(options);//连接服务器,连接不上会阻塞在这
+                               //LogUtil.i(TAG,"连接成功");
+                               LogUtil.i(TAG,"来异常里连接成功");
+                               String intentAction = CONNECTED;
+                               broadcastUpdate(intentAction);
+                               subscribe();
+                           } catch (MqttException e) {
+                               e.printStackTrace();
+                           }
+                       }
+                   });
+               }
+           },3000);
+       }else {
+           reconnect = 0;
+           LogUtil.i(TAG,"已经重连过3次了");
+       }
 
 
     }
