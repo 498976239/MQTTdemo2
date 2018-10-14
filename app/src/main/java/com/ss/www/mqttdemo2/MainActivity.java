@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -18,8 +19,12 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.view.Display;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,6 +32,7 @@ import com.ss.www.mqttdemo2.Bean.HeadInfo;
 import com.ss.www.mqttdemo2.Bean.MyMessage;
 import com.ss.www.mqttdemo2.adapter.ImeiAdpter;
 import com.ss.www.mqttdemo2.adapter.MainAdapter;
+import com.ss.www.mqttdemo2.dialog.MyViewDialog;
 import com.ss.www.mqttdemo2.utils.JsonUtil;
 import com.ss.www.mqttdemo2.utils.LogUtil;
 
@@ -47,10 +53,14 @@ public class MainActivity extends AppCompatActivity {
     public  final static String ACCOUNT = "com.ss.www.mqttdemo.ACCOUNT";
     public  final static String PASSWORD = "com.ss.www.mqttdemo.PASSWORD";
     public  final static int COME_BACK = 3;
+    public static int SCREEN_WIDTH;
+    public static int SCREEN_HEIGHT;
     private MQTTService mqttService;
     private MqttClient client;
     private Toolbar mToolbar;
+    private MyViewDialog dialog;
     private int count;
+    private RadioGroup mRadioGroup;
     private List<MyMessage> back_list;
     private SearchView mSearchView;
     private RecyclerView imei_rv;
@@ -246,6 +256,25 @@ public class MainActivity extends AppCompatActivity {
                     //startActivity(intent);
                 }
 
+            }
+        });
+        imei_adapter.setSettingOnItemClickListener(new ImeiAdpter.OnSettingItemClickListener() {
+            @Override
+            public void onSettingItemClick(View view, int position) {
+                dialog = new MyViewDialog(MainActivity.this);
+                dialog.show();
+                Window dialogWindow = dialog.getWindow();
+                //获取屏幕
+                WindowManager wm = (WindowManager) getBaseContext().getSystemService(Context.WINDOW_SERVICE);
+                Display display = wm.getDefaultDisplay();
+                Point size = new Point();
+                display.getSize(size);
+                SCREEN_WIDTH= size.x;//获取屏幕的宽度
+                SCREEN_HEIGHT= size.y;//获取屏幕的高度
+                WindowManager.LayoutParams p = dialogWindow.getAttributes(); // 获取对话框当前的参数值
+                p.width = (int) (SCREEN_WIDTH*0.95); // 宽度设置为屏幕，根据实际情况调整
+                p.height = (int) (SCREEN_HEIGHT*0.7); // 高度设置为屏幕，根据实际情况调整
+                dialogWindow.setAttributes(p);
             }
         });
         if (mList_imei != null){

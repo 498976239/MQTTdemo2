@@ -176,7 +176,7 @@ public class Main2Activity extends AppCompatActivity {
                 mList.add(message);
             }
             if (message.getIMEI().equals(str_imei)){
-                if (!show_mlist.contains(message))
+                if (!show_mlist.contains(message)&&!(message.getMeasureTime().equals(show_mlist.get(0).getMeasureTime())))
                 show_mlist.add(0,message);
             }
             adapter.notifyDataSetChanged();

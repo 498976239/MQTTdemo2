@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -47,6 +48,15 @@ public class ImeiAdpter extends RecyclerView.Adapter {
                 final ImeiViewHolder holder1 = (ImeiViewHolder) holder;
                 holder1.tv.setText(mList.get(position).getName());
                 holder1.count.setText(mList.get(position).getCount());
+                if (onSettingItemClickListener != null){
+                    holder1.set_para.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            onSettingItemClickListener.onSettingItemClick(v,position);
+                        }
+                    });
+                }
+
                 holder1.checkBox.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -139,12 +149,14 @@ public class ImeiAdpter extends RecyclerView.Adapter {
          CheckBox checkBox;
          CheckBox checkBox2;
          TextView count;
+         Button set_para;
         public ImeiViewHolder(View itemView) {
             super(itemView);
             tv = itemView.findViewById(R.id.imei_info);
             checkBox = itemView.findViewById(R.id.mark);
             checkBox2 = itemView.findViewById(R.id.mark2);
             count = itemView.findViewById(R.id.count);
+            set_para = itemView.findViewById(R.id.setting_para);
         }
     }
     public interface OnItemClickListener{
@@ -153,6 +165,17 @@ public class ImeiAdpter extends RecyclerView.Adapter {
     private OnItemClickListener onItemClickListener;
     public void setOnItemClickListener(OnItemClickListener onItemClickListener){
         this.onItemClickListener = onItemClickListener;
+    }
+
+
+    public interface OnSettingItemClickListener{
+         void onSettingItemClick(View view, int position);
+    }
+
+    private OnSettingItemClickListener onSettingItemClickListener;
+
+    public void setSettingOnItemClickListener(OnSettingItemClickListener onSettingItemClickListener){
+        this.onSettingItemClickListener = onSettingItemClickListener;
     }
     public void setFilter(List<HeadInfo> list){
         mList = list;

@@ -17,7 +17,9 @@ import android.widget.Toast;
 import com.ss.www.mqttdemo2.utils.LogUtil;
 import com.ss.www.mqttdemo2.utils.MacSignature;
 
+import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
@@ -58,24 +60,6 @@ public class MQTTService extends Service implements MqttCallback{
     private static String myTopic = "iot/nb/"; //要订阅的主题
     private static String Topic = "ss";//通讯猫测试
     private String clientId ;//客户端标识
-    private Timer mTimer;
-   /* private TimerTask timerTask = new TimerTask(){
-
-        @Override
-        public void run() {
-            if (first == true && !first2){
-                try {
-                    client.subscribe(myTopic +userName,2);
-                    LogUtil.i(TAG,"在定时器里开启订阅");
-
-                    first2 = true;
-                } catch (MqttException e) {
-                    LogUtil.i(TAG,"定时器里报的异常--"+e.toString());
-
-                }
-            }
-        }
-    };*/
     private IGetMessageCallBack iGetMessageCallBack;
     public class CustomBinder extends Binder {
         public MQTTService getService(){
@@ -89,15 +73,11 @@ public class MQTTService extends Service implements MqttCallback{
 
     }
 
+
     @Override
     public void onCreate() {
         super.onCreate();
-       // mTimer = new Timer();
-        //mTimer.schedule(timerTask,1,1000*2);
         Notification.Builder builder = new Notification.Builder(this);
-        /*PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                new Intent(this, MainActivity.class), 0);
-        builder.setContentIntent(contentIntent);*/
         builder.setSmallIcon(R.mipmap.ic_launcher);
         builder.setTicker("Foreground Service Start");
         builder.setContentTitle("Foreground Service");
@@ -110,7 +90,6 @@ public class MQTTService extends Service implements MqttCallback{
     @Override
     public void onDestroy() {
         super.onDestroy();
-        //mTimer.cancel();
         try {
             if (client!=null)
             client.unsubscribe(myTopic +userName);
@@ -267,27 +246,14 @@ public class MQTTService extends Service implements MqttCallback{
             LogUtil.i(TAG,"arrived------"+message.toString());
             String str2 = GET_MESSAGE;
             broadcastUpdate2(str2,message.toString());
-            if (!first){
-            //client.unsubscribe(myTopic +userName);
-            first = true;
-            }
-           /* if (iGetMessageCallBack != null){
-                String str = message.toString();
-                LogUtil.i(TAG,"str------"+message.toString());
-                iGetMessageCallBack.getMessage(str);
-                LogUtil.i(TAG,"first------"+first);
-                if (!first){
-
-                    first = true;
-                }
-                LogUtil.i(TAG,"count--"+count);
-            }*/
-
-
     }
 
     @Override
     public void deliveryComplete(IMqttDeliveryToken token) {
+        LogUtil.i(TAG,"deliveryComplete------");
+    }
+
+    public void publish(){
 
     }
 
