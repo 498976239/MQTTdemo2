@@ -53,13 +53,37 @@ public class MQTTService extends Service implements MqttCallback{
     private MqttConnectOptions options;//配置
     private  String TelephonyIMEI;
     private String sign;
-    private int reconnect;//重连次数计时
     private String host = "tcp://120.77.246.251:1883";
     private String Local = "tcp://mq.tongxinmao.com:18831";//通讯猫测试
     private String userName ;
     private static String myTopic = "iot/nb/"; //要订阅的主题
     private static String Topic = "ss";//通讯猫测试
     private String clientId ;//客户端标识
+    private int re_conn;//记录重连次数
+    private boolean re_conn_flag;//重连标记
+    private Timer timer;
+    private TimerTask timerTask = new TimerTask() {
+        @Override
+        public void run() {
+            if (client!=null){
+                LogUtil.i(TAG,"client.isConnected()---"+client.isConnected());
+                if (!client.isConnected()){
+                    re_conn++;
+                    connect();
+                    re_conn_flag = true;
+                    LogUtil.i(TAG,"重连的次数---"+re_conn);
+                    LogUtil.i(TAG,"re_conn_flag---"+re_conn_flag);
+                }
+                if (client.isConnected()&re_conn_flag ){
+                    subscribe();
+                    LogUtil.i(TAG,"重连之后订阅---");
+                    re_conn_flag = false;
+                }
+
+            }
+
+        }
+    };
     private IGetMessageCallBack iGetMessageCallBack;
     public class CustomBinder extends Binder {
         public MQTTService getService(){
@@ -84,6 +108,8 @@ public class MQTTService extends Service implements MqttCallback{
         builder.setContentText("正在采集...");
         Notification notification = builder.build();
         startForeground(1, notification);
+        timer = new Timer();
+        timer.schedule(timerTask,1,3000);
     }
 
 
@@ -95,6 +121,9 @@ public class MQTTService extends Service implements MqttCallback{
             client.unsubscribe(myTopic +userName);
         } catch (MqttException e) {
             e.printStackTrace();
+        }
+        if (timer!=null){
+            timer.cancel();
         }
     }
 
@@ -120,6 +149,7 @@ public class MQTTService extends Service implements MqttCallback{
                        client.connect(options);//连接服务器,连接不上会阻塞在这
                        LogUtil.i(TAG,"连接成功");
                        String intentAction = CONNECTED;
+                       //re_conn_flag = false;
                        broadcastUpdate(intentAction);
                        LogUtil.i(TAG,"-----"+myTopic +userName+"/+");
                    } catch (MqttException e) {
@@ -207,7 +237,7 @@ public class MQTTService extends Service implements MqttCallback{
         LogUtil.i(TAG,"connectionLost"+cause.toString());
         String str = CONNECT_LOST;
         broadcastUpdate(str);
-       if (reconnect < 3){
+       /*if (reconnect < 3){
            reconnect++;
            new Handler().postDelayed(new Runnable() {
                @Override
@@ -236,7 +266,7 @@ public class MQTTService extends Service implements MqttCallback{
        }else {
            reconnect = 0;
            LogUtil.i(TAG,"已经重连过3次了");
-       }
+       }*/
 
 
     }
@@ -244,6 +274,7 @@ public class MQTTService extends Service implements MqttCallback{
     @Override
     public void messageArrived(String topic, MqttMessage message) throws Exception {
             LogUtil.i(TAG,"arrived------"+message.toString());
+            //re_conn_flag = false;
             String str2 = GET_MESSAGE;
             broadcastUpdate2(str2,message.toString());
     }
@@ -255,6 +286,17 @@ public class MQTTService extends Service implements MqttCallback{
 
     public void publish(){
 
+    }
+
+    public void disconnect(){
+        if (client != null){
+            try {
+                client.disconnect();
+            } catch (MqttException e) {
+                e.printStackTrace();
+                LogUtil.i(TAG,"disconnect----"+e.toString());
+            }
+        }
     }
 
     public MqttClient getClient(){

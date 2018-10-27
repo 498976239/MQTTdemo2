@@ -50,6 +50,7 @@ public class LoginActivity extends AppCompatActivity {
     private CheckBox rememberPass;
     private MQTTService mService;
     private String account;
+    private boolean isConnected = false;
     private long count;//用户的数量
     private String password;
     private List<Person> mList = new ArrayList<>();//用来读取存有的用户名账号信息
@@ -108,16 +109,23 @@ public class LoginActivity extends AppCompatActivity {
             }
             if (MQTTService.WRONG_INFOR.equals(str)){
                 Toast.makeText(LoginActivity.this,"用户名密码错误",Toast.LENGTH_SHORT).show();
-                unbindService(connection);
+                if (isConnected){
+                    unbindService(connection);
+                }
+
             }
             if (MQTTService.NO_WIFI.equals(str)){
                 Toast.makeText(LoginActivity.this,"无信号，请检查网络",Toast.LENGTH_SHORT).show();
-                unbindService(connection);
+                if (isConnected){
+                    unbindService(connection);
+                }
             }
             if (MQTTService.NO_PERMISSION.equals(str)){
                 Toast.makeText(LoginActivity.this,"请允许读取手机状态权限",Toast.LENGTH_SHORT).show();
                 //ActivityCompat.requestPermissions(LoginActivity.this, new String[]{Manifest.permission.READ_PHONE_STATE}, 3);
-                unbindService(connection);
+                if (isConnected){
+                    unbindService(connection);
+                }
             }
         }
     };
@@ -184,7 +192,7 @@ public class LoginActivity extends AppCompatActivity {
                 if ((account.length() != 0)&&(password.length()!=0)){
                     LogUtil.i(TAG,"在按钮里");
                     Intent intent = new Intent(LoginActivity.this,MQTTService.class);
-                    bindService(intent,connection, Context.BIND_AUTO_CREATE);
+                    isConnected  = bindService(intent,connection, Context.BIND_AUTO_CREATE);
                 }else {
                     Toast.makeText(LoginActivity.this,"登录名或密码不能为空",Toast.LENGTH_SHORT).show();
 
@@ -238,7 +246,11 @@ public class LoginActivity extends AppCompatActivity {
             unregisterReceiver(receiver);
         }
        if (mService!=null){
-           unbindService(connection);
+           if (isConnected){
+               unbindService(connection);
+               isConnected = false;
+           }
+
        }
 
     }

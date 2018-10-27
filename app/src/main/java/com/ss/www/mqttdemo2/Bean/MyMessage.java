@@ -79,4 +79,23 @@ public class MyMessage implements Serializable {
     public void setD3(String d3) {
         D3 = d3;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MyMessage)) return false;
+
+        MyMessage message = (MyMessage) o;
+
+        if (!IMEI.equals(message.IMEI)) return false;
+        return MeasureTime.equals(message.MeasureTime);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = IMEI.hashCode();
+        result = 31 * result + MeasureTime.hashCode();
+        return result;
+    }
 }

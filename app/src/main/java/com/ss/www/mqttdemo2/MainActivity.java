@@ -45,6 +45,7 @@ import org.json.JSONObject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -67,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
     private ImeiAdpter imei_adapter;
     private List<MyMessage> mList_show;
     private List<MyMessage> mList;
+    private boolean equal;//判断是否相等
     private List<String> compare;//用来查看里面是否有重复的IMEI
     private List<HeadInfo> mList_imei;
     private List<HeadInfo> filter_string;
@@ -99,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
             String action = intent.getAction();
             if (MQTTService.CONNECTED.equals(action)){
                 LogUtil.i(TAG,"main---连接成功");
-                Toast.makeText(MainActivity.this,"连接成功",Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MainActivity.this,"连接成功",Toast.LENGTH_SHORT).show();
                 setMessage("连接成功");
 
             }
@@ -114,6 +116,28 @@ public class MainActivity extends AppCompatActivity {
             }
             if (MQTTService.CONNECT_LOST.equals(action)){
                 setMessage("连接断开");
+               /* new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mqttService.connect();
+                        mqttService.subscribe();
+                        re_conn++;
+                        LogUtil.i(TAG,"重连次数----"+re_conn);
+                    }
+                },1000);*/
+
+            }
+            if (MQTTService.NO_WIFI.equals(action)){
+                setMessage("信号不稳，正在重连...");
+                /*new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mqttService.connect();
+                        mqttService.subscribe();
+                    }
+                },3000);
+                LogUtil.i(TAG,"没有网络重连次数----");*/
+
             }
         }
     };
@@ -189,18 +213,14 @@ public class MainActivity extends AppCompatActivity {
         unbindService(connection);
         unregisterReceiver(receiver);
         LogUtil.i(TAG,"被销毁了");
-        try {
-            client.disconnect();
-        } catch (MqttException e) {
-            e.printStackTrace();
-            LogUtil.i(TAG,"Mainactivity里面disconnect异常"+e.toString());
-        }
+        mqttService.disconnect();
     }
     private void registerBroadcast(){
         intentFilter = new IntentFilter();
         intentFilter.addAction(MQTTService.CONNECTED);
         intentFilter.addAction(MQTTService.GET_MESSAGE);
         intentFilter.addAction(MQTTService.CONNECT_LOST);
+        intentFilter.addAction(MQTTService.NO_WIFI);
     }
 
     private List<HeadInfo> Filter(List<HeadInfo> list, String str){
@@ -286,7 +306,9 @@ public class MainActivity extends AppCompatActivity {
         mList_imei = new ArrayList<>();
         mList_show = new ArrayList<>();
         filter_string = new ArrayList<>();
+        back_list = new ArrayList<>();
         compare = new ArrayList<>();
+
     }
 
     private void setMessage(String str) {
@@ -307,11 +329,27 @@ public class MainActivity extends AppCompatActivity {
 
     }
     private void getInformation(String s){
+       // equal = false;
         try {
             MyMessage message = JsonUtil.dealWithJson(s);
+            /*mList.add(message);
+            LogUtil.i(TAG,"数量-22---"+mList.size());
+                for (int i = 0; i < mList.size(); i++) {
+                    if (message.equals(mList.get(i))){
+                        //equal = true;
+                        LogUtil.i(TAG,"找到相同的了---");
+                        mList.remove(i);
+                        mList.add(message);
+                        break;
+                    }
+                }
+                //equal = false;
+                LogUtil.i(TAG,"数量-11---"+mList.size());*/
+
             if (!mList.contains(message)){
                 mList.add(message);
             }
+
             if (!compare.contains(message.getIMEI())){
                 count++;
                 HeadInfo headInfo = new HeadInfo();

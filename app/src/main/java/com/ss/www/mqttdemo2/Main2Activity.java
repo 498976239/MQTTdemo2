@@ -32,6 +32,7 @@ import org.json.JSONObject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 public class Main2Activity extends AppCompatActivity {
@@ -40,7 +41,7 @@ public class Main2Activity extends AppCompatActivity {
     public static final String IMEI_NO = "imei_no";
     public static final String INFORMATION = "information";
     public static final String BACK_IMEI = "BACK_IMEI";//送回去的IMEI号，用来标红颜色
-    private List<MyMessage> mList;
+    private List<MyMessage> mList ;
     private List<MyMessage>show_mlist;
     private String str_imei;
     private RecyclerView rv;
@@ -83,6 +84,18 @@ public class Main2Activity extends AppCompatActivity {
             if (MQTTService.CONNECT_LOST.equals(action)){
                 setMessage("连接断开");
             }
+            if (MQTTService.NO_WIFI.equals(action)){
+                setMessage("信号不稳，正在重连...");
+               /* new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mqttService.connect();
+                        mqttService.subscribe();
+                    }
+                },3000);
+                LogUtil.i(TAG,"没有网络重连次数----");*/
+
+            }
         }
     };
     private Handler mHandler = new Handler(){
@@ -113,6 +126,7 @@ public class Main2Activity extends AppCompatActivity {
         intentFilter.addAction(MQTTService.GET_MESSAGE);
         intentFilter.addAction(MQTTService.CONNECTED);
         intentFilter.addAction(MQTTService.CONNECT_LOST);
+        intentFilter.addAction(MQTTService.NO_WIFI);
     }
     private void initView() {
         rv = (RecyclerView) findViewById(R.id.main_recycler);
@@ -127,15 +141,19 @@ public class Main2Activity extends AppCompatActivity {
 
     private void initData() {
         show_mlist = new ArrayList<>();
+        show_mlist.clear();
         str_imei = getIntent().getStringExtra(IMEI_NO);
         mList = (List<MyMessage>) getIntent().getSerializableExtra(INFORMATION);
         Collections.reverse(mList);
         LogUtil.i(TAG,"得到的信息数::"+mList.size());
         for (int i = 0; i < mList.size(); i++) {
             if (mList.get(i).getIMEI().equals(str_imei)){
-                show_mlist.add(mList.get(i));
+                if (!show_mlist.contains(mList.get(i))){
+                    show_mlist.add(mList.get(i));
+                }
             }
         }
+
     }
 
     @Override
@@ -172,6 +190,16 @@ public class Main2Activity extends AppCompatActivity {
     private void getInformation(String s){
         try {
             MyMessage message = JsonUtil.dealWithJson(s);
+           /* if (mList.size()==0){
+                mList.add(message);
+            }
+            if (mList.size()>0){
+                for (int i = 0; i < mList.size(); i++) {
+                    if (message.equals(mList.get(i))){
+
+                    }
+                }
+            }*/
             if (!mList.contains(message)){
                 mList.add(message);
             }
