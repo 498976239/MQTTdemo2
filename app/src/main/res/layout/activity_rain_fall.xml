@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#FF403E3E"
+    android:orientation="vertical"
+    tools:context="com.ss.www.mqttdemo2.RainFallActivity">
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/mToolBar_rainfall"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        android:background="#FF403E3E"
+        app:theme = "@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+    </android.support.v7.widget.Toolbar>
+    <android.support.v7.widget.SearchView
+        android:id="@+id/search_rainfall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorWhite"/>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/imei_title_railfall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_weight="1"
+            android:id="@+id/time_chain_rain"
+            android:layout_width="25dp"
+            android:layout_height="wrap_content"
+            android:text="24"
+            android:textColor="@color/colorWhite"
+            android:textSize="20sp"/>
+        <ProgressBar
+            android:layout_weight="3"
+            android:id="@+id/ProgressBar_rain"
+            android:layout_width="160dp"
+            android:layout_height="20dp"
+            android:layout_marginLeft="10dp"
+            android:progressDrawable="@drawable/progressbar"
+            android:layout_gravity="center"
+            android:background="@color/colorWhite"
+            android:max="0"
+            android:progress="0"
+            style="@android:style/Widget.ProgressBar.Horizontal"/>
+        <android.support.v7.widget.CardView
+            android:layout_weight="1"
+            android:layout_width="90dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="20dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            card_view:cardBackgroundColor="@color/colorGreen2"
+            card_view:cardCornerRadius="4dp">
+            <TextView
+                android:id="@+id/value_rain"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="00000"
+                android:textColor="@color/colorWhite"
+                android:textSize="20dp" />
+        </android.support.v7.widget.CardView>
+        <TextView
+            android:layout_weight="1"
+            android:layout_marginTop="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="mm"
+            android:textColor="@color/colorWhite"
+            android:textSize="20sp"/>
+    </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#FFC9C5C6"/>
+
+
+</LinearLayout>
