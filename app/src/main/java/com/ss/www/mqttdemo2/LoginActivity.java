@@ -101,7 +101,7 @@ public class LoginActivity extends AppCompatActivity {
                     //editor.clear();
                 }
                 editor.commit();
-                Intent intent1 = new Intent(LoginActivity.this,MainActivity.class);
+                Intent intent1 = new Intent(LoginActivity.this,RainFallActivity.class);
                 intent1.putExtra(MainActivity.ACCOUNT,account);
                 intent1.putExtra(MainActivity.PASSWORD,password);
                 startActivity(intent1);

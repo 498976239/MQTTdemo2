@@ -1,6 +1,7 @@
 package com.ss.www.mqttdemo2.Bean;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by 小松松 on 2018/9/17.
@@ -15,7 +16,6 @@ public class MyMessage implements Serializable {
     public String D1;//数据1
     public String D2;//数据2
     public String D3;//数据3
-
     public String getIMEI() {
         return IMEI;
     }

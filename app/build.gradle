@@ -8,7 +8,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 26
         versionCode 1
-        versionName "1.0.2"
+        versionName "2.0.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -31,5 +31,6 @@ dependencies {
     compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.1'
     compile 'com.android.support:design:26.0.0-alpha1'
     compile 'com.android.support:cardview-v7:26.0.0-alpha1'
+    compile 'com.alibaba:fastjson:1.2.51'
     testCompile 'junit:junit:4.12'
 }

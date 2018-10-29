@@ -9,17 +9,16 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
-
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/iot_logo2"
+        android:icon="@mipmap/iot123"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
-            android:configChanges="screenSize|keyboardHidden|orientation"></activity>
+            android:configChanges="screenSize|keyboardHidden|orientation" />
 
         <service
             android:name=".MQTTService"
@@ -29,7 +28,9 @@
         <activity
             android:name=".Main2Activity"
             android:configChanges="screenSize|keyboardHidden|orientation" />
-        <activity android:name=".flash_Activity"
+        <activity
+            android:name=".flash_Activity"
+
             android:configChanges="screenSize|keyboardHidden|orientation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -37,9 +38,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".LoginActivity"
+        <activity
+            android:name=".LoginActivity"
+            android:configChanges="screenSize|keyboardHidden|orientation" />
+        <activity
+            android:name=".RainFallActivity"
             android:configChanges="screenSize|keyboardHidden|orientation">
+
         </activity>
+        <activity android:name=".RainfallShowActivity"
+            android:configChanges="screenSize|keyboardHidden|orientation"></activity>
     </application>
 
 </manifest>

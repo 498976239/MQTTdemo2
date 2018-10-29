@@ -39,6 +39,7 @@ public class ImeiAdpter extends RecyclerView.Adapter {
             return new EmptyViewHoldr(v);
         }
         View v = LayoutInflater.from(mContext).inflate(R.layout.layout_item2,parent,false);
+        //View v = LayoutInflater.from(mContext).inflate(R.layout.layout_railfall_imei,parent,false);
         return new ImeiViewHolder(v);
     }
 
@@ -48,14 +49,14 @@ public class ImeiAdpter extends RecyclerView.Adapter {
                 final ImeiViewHolder holder1 = (ImeiViewHolder) holder;
                 holder1.tv.setText(mList.get(position).getName());
                 holder1.count.setText(mList.get(position).getCount());
-                if (onSettingItemClickListener != null){
+                /*if (onSettingItemClickListener != null){
                     holder1.set_para.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             onSettingItemClickListener.onSettingItemClick(v,position);
                         }
                     });
-                }
+                }*/
 
                 holder1.checkBox.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -145,18 +146,23 @@ public class ImeiAdpter extends RecyclerView.Adapter {
     }
 
      class ImeiViewHolder extends RecyclerView.ViewHolder{
-        TextView tv;
+         TextView tv;
          CheckBox checkBox;
          CheckBox checkBox2;
          TextView count;
          Button set_para;
         public ImeiViewHolder(View itemView) {
             super(itemView);
+            /*tv = itemView.findViewById(R.id.imei_info_rainfall);
+            checkBox = itemView.findViewById(R.id.mark_rainfall);
+            checkBox2 = itemView.findViewById(R.id.mark2_rainfall);
+            count = itemView.findViewById(R.id.count_rainfall);*/
             tv = itemView.findViewById(R.id.imei_info);
             checkBox = itemView.findViewById(R.id.mark);
             checkBox2 = itemView.findViewById(R.id.mark2);
             count = itemView.findViewById(R.id.count);
-            set_para = itemView.findViewById(R.id.setting_para);
+            //set_para = itemView.findViewById(R.id.setting_para);
+
         }
     }
     public interface OnItemClickListener{

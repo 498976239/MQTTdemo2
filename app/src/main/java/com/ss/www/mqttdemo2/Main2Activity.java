@@ -18,7 +18,10 @@ import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.alibaba.fastjson.JSON;
 import com.ss.www.mqttdemo2.Bean.MyMessage;
+import com.ss.www.mqttdemo2.Bean.MyMessage2;
+import com.ss.www.mqttdemo2.Bean.NewMessage;
 import com.ss.www.mqttdemo2.adapter.ImeiAdpter;
 import com.ss.www.mqttdemo2.adapter.MainAdapter;
 import com.ss.www.mqttdemo2.utils.JsonUtil;
@@ -41,8 +44,9 @@ public class Main2Activity extends AppCompatActivity {
     public static final String IMEI_NO = "imei_no";
     public static final String INFORMATION = "information";
     public static final String BACK_IMEI = "BACK_IMEI";//送回去的IMEI号，用来标红颜色
-    private List<MyMessage> mList ;
-    private List<MyMessage>show_mlist;
+    private List<NewMessage> mList ;
+    private List<NewMessage>show_mlist;
+    private List<MyMessage> theEndShow;
     private String str_imei;
     private RecyclerView rv;
     private MainAdapter adapter;
@@ -71,10 +75,10 @@ public class Main2Activity extends AppCompatActivity {
                 String action = intent.getAction();
             if (MQTTService.GET_MESSAGE.equals(action)){
                 String str = intent.getStringExtra(MQTTService.MESSAGE);
-                String s = str.substring(str.indexOf("[{"),str.indexOf("}]")+2);
+                NewMessage message = JSON.parseObject(str,NewMessage.class);
                 Message msg = Message.obtain();
                 msg.what = RECEIVE_DATA2;
-                msg.obj = s;
+                msg.obj = message;
                 mHandler.sendMessage(msg);
             }
             if (MQTTService.CONNECTED.equals(action)){
@@ -86,14 +90,6 @@ public class Main2Activity extends AppCompatActivity {
             }
             if (MQTTService.NO_WIFI.equals(action)){
                 setMessage("信号不稳，正在重连...");
-               /* new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mqttService.connect();
-                        mqttService.subscribe();
-                    }
-                },3000);
-                LogUtil.i(TAG,"没有网络重连次数----");*/
 
             }
         }
@@ -105,8 +101,7 @@ public class Main2Activity extends AppCompatActivity {
             switch (msg.what){
                 case RECEIVE_DATA2 :
                     LogUtil.i(TAG,"main2收到数据");
-                    String s = (String) msg.obj;
-                    //initJSON(s);
+                    NewMessage s = (NewMessage) msg.obj;
                     getInformation(s);
                     break;
             }
@@ -141,11 +136,10 @@ public class Main2Activity extends AppCompatActivity {
 
     private void initData() {
         show_mlist = new ArrayList<>();
+        theEndShow = new ArrayList<>();
         show_mlist.clear();
         str_imei = getIntent().getStringExtra(IMEI_NO);
-        mList = (List<MyMessage>) getIntent().getSerializableExtra(INFORMATION);
-        Collections.reverse(mList);
-        LogUtil.i(TAG,"得到的信息数::"+mList.size());
+        mList = (List<NewMessage>) getIntent().getSerializableExtra(INFORMATION);
         for (int i = 0; i < mList.size(); i++) {
             if (mList.get(i).getIMEI().equals(str_imei)){
                 if (!show_mlist.contains(mList.get(i))){
@@ -153,22 +147,19 @@ public class Main2Activity extends AppCompatActivity {
                 }
             }
         }
-
+        Collections.reverse(show_mlist);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (show_mlist.get(0).getSensorType().equals("1")){
-            //type.setText("拉绳");
+        if (show_mlist.get(0).getSensorType()==1){
             mToolbar.setTitle("拉绳:"+str_imei);
         }
-        if (show_mlist.get(0).getSensorType().equals("2")){
-            //type.setText("倾角");
+        if (show_mlist.get(0).getSensorType()==2){
             mToolbar.setTitle("倾角:"+str_imei);
         }
-        if (show_mlist.get(0).getSensorType().equals("3")){
-            //type.setText("土压力盒");
+        if (show_mlist.get(0).getSensorType()==3){
             mToolbar.setTitle("土压力盒:"+str_imei);
         }
         registerReceiver(receiver, intentFilter);
@@ -182,35 +173,29 @@ public class Main2Activity extends AppCompatActivity {
         LogUtil.i(TAG,"被销毁了");
         unregisterReceiver(receiver);
         unbindService(connection);
+        /*if (mqttService != null){
+            mqttService.disconnect();
+        }*/
     }
 
     private void setMessage(String str) {
         mToolbar.setSubtitle(str);
     }
-    private void getInformation(String s){
-        try {
-            MyMessage message = JsonUtil.dealWithJson(s);
-           /* if (mList.size()==0){
+    private void getInformation(NewMessage message){
+            if (mList.size()==0){
                 mList.add(message);
             }
-            if (mList.size()>0){
-                for (int i = 0; i < mList.size(); i++) {
-                    if (message.equals(mList.get(i))){
-
-                    }
+            if (!mList.contains(message)) {
+                mList.add(message);
+            }
+            if (message.getIMEI().equals(show_mlist.get(0).getIMEI())){
+                if (!show_mlist.contains(message)) {
+                    show_mlist.add(0,message);
                 }
-            }*/
-            if (!mList.contains(message)){
-                mList.add(message);
             }
-            if (message.getIMEI().equals(str_imei)){
-                if (!show_mlist.contains(message)&&!(message.getMeasureTime().equals(show_mlist.get(0).getMeasureTime())))
-                show_mlist.add(0,message);
-            }
+
             adapter.notifyDataSetChanged();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+
     }
 
     @Override
