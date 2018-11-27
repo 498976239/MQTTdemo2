@@ -197,9 +197,12 @@ public class RainFallActivity extends AppCompatActivity {
                     for (int i = 0; i < mList.size(); i++) {
                         if (str2.equals(mList.get(i).getIMEI())){
                             a = mList.get(i).getSensorType();//根据IMEI号得到相应的传感器数据类型
+                            LogUtil.i(TAG,"a-----------------------------:"+a);
                         }
                     }
-                    if (a == 4){
+
+                  //  LogUtil.i(TAG,"a:"+a);
+                    if (a == 4 || a == 5){
                         //开启雨量传感器界面
                         Intent intent = new Intent(RainFallActivity.this,RainfallShowActivity.class);
                         Bundle bundle = new Bundle();
@@ -209,7 +212,7 @@ public class RainFallActivity extends AppCompatActivity {
                         bundle.putSerializable(RainfallShowActivity.INFORMATION_RAINFALLSHOWACTIVITY, (Serializable) mList);
                         intent.putExtras(bundle);
                         startActivityForResult(intent,COME_BACK);
-                    }else {
+                    }else if (a < 4){
                         //开启除雨量以外的界面
                         Intent intent = new Intent(RainFallActivity.this,Main2Activity.class);
                         Bundle bundle = new Bundle();
@@ -217,6 +220,8 @@ public class RainFallActivity extends AppCompatActivity {
                         bundle.putSerializable(Main2Activity.INFORMATION, (Serializable) mList);
                         intent.putExtras(bundle);
                         startActivityForResult(intent,COME_BACK_MAIN2ACTIVITY);
+                    }else {
+                        Toast.makeText(RainFallActivity.this,"该型号传感器暂不显示",Toast.LENGTH_SHORT).show();
                     }
                 }else {
                     //这部分是没有使用查找滤波的操作
@@ -226,9 +231,10 @@ public class RainFallActivity extends AppCompatActivity {
                     for (int i = 0; i < mList.size(); i++) {
                         if (str.equals(mList.get(i).getIMEI())){
                             a = mList.get(i).getSensorType();
+                            LogUtil.i(TAG,"a-----------------------------:"+a);
                         }
                     }
-                    if (a == 4){
+                    if (a == 4 || a == 5){
                         Intent intent = new Intent(RainFallActivity.this,RainfallShowActivity.class);
                         Bundle bundle = new Bundle();
                         bundle.putString(RainfallShowActivity.IMEI_NO_AINFALLSHOWACTIVITY,str);
@@ -236,7 +242,7 @@ public class RainFallActivity extends AppCompatActivity {
                         bundle.putSerializable(RainfallShowActivity.INFORMATION_RAINFALLSHOWACTIVITY, (Serializable) mList);
                         intent.putExtras(bundle);
                         startActivityForResult(intent,COME_BACK);
-                    }else {
+                    }else if(a < 4){
                         Intent intent = new Intent(RainFallActivity.this,Main2Activity.class);
                         Bundle bundle = new Bundle();
                         bundle.putString(Main2Activity.IMEI_NO,str);
@@ -244,6 +250,8 @@ public class RainFallActivity extends AppCompatActivity {
                         bundle.putSerializable(Main2Activity.INFORMATION, (Serializable) mList);
                         intent.putExtras(bundle);
                         startActivityForResult(intent,COME_BACK_MAIN2ACTIVITY);
+                    }else {
+                        Toast.makeText(RainFallActivity.this,"该型号传感器暂不显示",Toast.LENGTH_SHORT).show();
                     }
                 }
             }

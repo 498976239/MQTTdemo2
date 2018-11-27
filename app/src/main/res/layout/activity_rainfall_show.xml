@@ -114,6 +114,29 @@
         </LinearLayout>
 
     </LinearLayout>
+    <LinearLayout
+        android:layout_marginRight="5dp"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/water_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorWhite"
+            android:textSize="15sp"
+            android:visibility="gone"
+            android:text="最近液位(mm):"/>
+        <TextView
+            android:id="@+id/cur_water"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorWhite"
+            android:textSize="15sp"
+            android:visibility="gone"
+            android:text="9999.9"/>
+    </LinearLayout>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"

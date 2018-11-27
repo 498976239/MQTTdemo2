@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
@@ -31,12 +32,13 @@ import java.util.List;
 public class RainfallShowActivity extends AppCompatActivity {
     private String TAG = getClass().getSimpleName();
     private final static int RECEIVE_DATA2 = 1;
-
+    private TextView water_name;
     private TextView rainfall_MeasureTime;
     private TextView startTime;
     private TextView endTime;
     private TextView current_rainfall;
     private TextView current_vol;
+    private TextView cur_water;
     private Toolbar mToolbar;
     private RecyclerView rv_rainfall;
     private RainfallAdapter adapter;
@@ -100,23 +102,26 @@ public class RainfallShowActivity extends AppCompatActivity {
                 case RECEIVE_DATA2 :
                     LogUtil.i(TAG,TAG+"收到数据-----");
                     NewMessage message = (NewMessage) msg.obj;
+                    LogUtil.i(TAG,"imei------"+message.getIMEI());
                     if (!newMessageList.contains(message)){
                         newMessageList.add(message);
                     }
-                    if (message.getIMEI().equals(str_imei)){
+                    if (message.getIMEI().equals(str_imei)){//当广播接收到的传感器是雨量传感器时
                         if (!show_mlist.contains(message)&&!(message.getMeasureTime().equals(show_mlist.get(0).getMeasureTime())))
-                            show_mlist.add(0,message);
+                            show_mlist.add(0,message);//没有重复就加入集合
+                        if (!message.getStarTime().equals("0:0")&&!message.getEndTime().equals("0:0")){//当时间为0.0，不更改。
+                            //写在这里面是因为广播也会收到其他传感器,去获取时间时为null。
+                            startTime.setText(message.getStarTime());
+                            endTime.setText(message.getEndTime());
+                        }
+                        if (message.getCurrentYL() != 0.0){
+                            current_rainfall.setText(message.getCurrentYL()+"");//得到当前雨量
+                        }
+                        rainfall_MeasureTime.setText(message.getMeasureTime());
+                        List<Float> list = show_mlist.get(0).getYL_24();//得到雨量值，24个
+                        adapter.changeForRainfall(list);//将数据重新刷新入适配器
                     }
-                    if (!message.getStarTime().equals("0:0")&&!message.getEndTime().equals("0:0")){
-                        startTime.setText(message.getStarTime());
-                        endTime.setText(message.getEndTime());
-                    }
-                    if (message.getCurrentYL() != 0.0){
-                        current_rainfall.setText(message.getCurrentYL()+"");//得到当前雨量
-                    }
-                    rainfall_MeasureTime.setText(message.getMeasureTime());
-                    List<Float> list = show_mlist.get(0).getYL_24();//得到雨量值，24个
-                    adapter.changeForRainfall(list);//将数据重新刷新入适配器
+
                     break;
             }
         }
@@ -136,6 +141,7 @@ public class RainfallShowActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        LogUtil.i(TAG,"-------------------------");
         setContentView(R.layout.activity_rainfall_show);
         initData();
         initView();
@@ -156,6 +162,13 @@ public class RainfallShowActivity extends AppCompatActivity {
         }
         if (show_mlist.get(0).getSensorType()==4){
             mToolbar.setTitle("雨量计:"+str_imei);
+        }
+        if (show_mlist.get(0).getSensorType() == 5){
+            water_name.setVisibility(View.VISIBLE);
+            cur_water.setVisibility(View.VISIBLE);
+        }else {
+            water_name.setVisibility(View.GONE);
+            cur_water.setVisibility(View.GONE);
         }
         registerReceiver(receiver, intentFilter);
         Intent intent = new Intent(RainfallShowActivity.this,MQTTService.class);
@@ -181,7 +194,10 @@ public class RainfallShowActivity extends AppCompatActivity {
         rv_rainfall = (RecyclerView) findViewById(R.id.rainfall_RecyclerView);
         current_rainfall = (TextView) findViewById(R.id.cur_rain);
         current_vol = (TextView) findViewById(R.id.cur_vol);
-        adapter = new RainfallAdapter(this,titleList,rainfallValueList);
+        cur_water = (TextView) findViewById(R.id.cur_water);
+        water_name = (TextView)findViewById(R.id.water_logo);
+        adapter = new RainfallAdapter(this,titleList,show_mlist.get(0).getYL_24());
+        //adapter = new RainfallAdapter(this,titleList,rainfallValueList);
         rv_rainfall.setLayoutManager(new LinearLayoutManager(this));
         rv_rainfall.setAdapter(adapter);
         setValue(show_mlist.get(0));
@@ -191,12 +207,19 @@ public class RainfallShowActivity extends AppCompatActivity {
         show_mlist = new ArrayList<>();
         show_mlist.clear();
         titleList = new ArrayList<>();
+        //得到的是全部的传感器的数据。要进行筛选
         newMessageList  = (List<NewMessage>) getIntent().getSerializableExtra(INFORMATION_RAINFALLSHOWACTIVITY);
-        Collections.reverse(newMessageList);
-        rainfallValueList = newMessageList.get(0).getYL_24();
+        LogUtil.i(TAG,"newMessageList:--"+newMessageList.size());
+        //Collections.reverse(newMessageList);
+        //rainfallValueList = newMessageList.get(0).getYL_24();
+
+           // LogUtil.i(TAG,"rainfallValueList:--"+newMessageList.get(0).getYL_24().toString());
+
+
+        //LogUtil.i(TAG,"rainfallValueList:--"+rainfallValueList.size());
         str_imei = getIntent().getStringExtra(IMEI_NO_AINFALLSHOWACTIVITY);
         LogUtil.i(TAG,"str_imei----"+str_imei);
-        for (int i = 0; i < rainfallValueList.size(); i++) {//适配器所需要的数据，用来显示雨量各个时间段
+        for (int i = 0; i < 24; i++) {//适配器所需要的数据，用来显示雨量各个时间段
             titleList.add((i)+"");
         }
         for (int i = 0; i < newMessageList.size(); i++) {//根据IMEI将传过来的所有传感器数据进行分类
@@ -211,6 +234,8 @@ public class RainfallShowActivity extends AppCompatActivity {
         LogUtil.i(TAG,"----"+show_mlist.get(0).getEndTime());
         LogUtil.i(TAG,"----"+show_mlist.get(0).getStarTime());
         LogUtil.i(TAG,"----"+show_mlist.get(0).getMeasureTime());
+        LogUtil.i(TAG,"----"+show_mlist.get(0).getYL_24().size());
+
     }
     private void setValue(NewMessage message){
         rainfall_MeasureTime.setText(message.getMeasureTime());
