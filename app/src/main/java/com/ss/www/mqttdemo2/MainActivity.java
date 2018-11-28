@@ -47,7 +47,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-
+//这个Activity 已经弃用了，使用的是RainFallActivity代替了
 public class MainActivity extends AppCompatActivity {
     private String TAG = getClass().getSimpleName();
     private final static int RECEIVE_DATA = 1;

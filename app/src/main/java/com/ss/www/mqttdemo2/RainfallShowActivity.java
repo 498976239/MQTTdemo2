@@ -118,6 +118,10 @@ public class RainfallShowActivity extends AppCompatActivity {
                             current_rainfall.setText(message.getCurrentYL()+"");//得到当前雨量
                         }
                         rainfall_MeasureTime.setText(message.getMeasureTime());
+                        if (message.getSensorType()==5){
+                            cur_water.setText(message.getPDataList().get(0).getD1()+"");
+                        }
+
                         List<Float> list = show_mlist.get(0).getYL_24();//得到雨量值，24个
                         adapter.changeForRainfall(list);//将数据重新刷新入适配器
                     }
@@ -166,6 +170,7 @@ public class RainfallShowActivity extends AppCompatActivity {
         if (show_mlist.get(0).getSensorType() == 5){
             water_name.setVisibility(View.VISIBLE);
             cur_water.setVisibility(View.VISIBLE);
+            mToolbar.setTitle("雨量水位一体站:"+str_imei);
         }else {
             water_name.setVisibility(View.GONE);
             cur_water.setVisibility(View.GONE);
@@ -210,6 +215,15 @@ public class RainfallShowActivity extends AppCompatActivity {
         //得到的是全部的传感器的数据。要进行筛选
         newMessageList  = (List<NewMessage>) getIntent().getSerializableExtra(INFORMATION_RAINFALLSHOWACTIVITY);
         LogUtil.i(TAG,"newMessageList:--"+newMessageList.size());
+        if (newMessageList.get(0).getSensorType() == 5){
+            float a = newMessageList.get(0).getPDataList().get(0).getD1();
+            float b = newMessageList.get(0).getPDataList().get(0).getD2();
+            float c = newMessageList.get(0).getPDataList().get(0).getD3();
+            LogUtil.i(TAG,"a---"+a);
+            LogUtil.i(TAG,"b---"+b);
+            LogUtil.i(TAG,"c---"+c);
+        }
+
         //Collections.reverse(newMessageList);
         //rainfallValueList = newMessageList.get(0).getYL_24();
 
@@ -243,7 +257,9 @@ public class RainfallShowActivity extends AppCompatActivity {
         endTime.setText(message.getEndTime());
         current_rainfall.setText(message.getCurrentYL()+"");
         current_vol.setText(message.getVol()+"");
-
+       if (message.getSensorType()==5){
+           cur_water.setText(message.getPDataList().get(0).getD1()+"");
+       }
     }
 
     private void setMessage(String str) {
